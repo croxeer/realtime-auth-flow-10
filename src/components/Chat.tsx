@@ -313,9 +313,26 @@ export const Chat = () => {
   }, {});
 
   return (
-    <div className="h-screen flex">
-      {/* Users sidebar */}
-      <Card className="w-80 auth-container border-border/50 rounded-none border-r">
+    <div className="h-screen flex flex-col lg:flex-row">
+      {/* Mobile header with connection status */}
+      <div className="lg:hidden p-4 border-b bg-card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold">Chat</h2>
+            <Badge variant={isConnected ? "default" : "destructive"} className="flex items-center gap-1">
+              {isConnected ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+              <span className="hidden sm:inline">{isConnected ? 'Online' : 'Offline'}</span>
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="h-4 w-4" />
+            <span>{onlineUsers.length}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Users sidebar - Desktop only */}
+      <Card className="hidden lg:block w-80 auth-container border-border/50 rounded-none border-r">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-lg">Chat Online</CardTitle>
           <Badge variant={isConnected ? "default" : "destructive"} className="flex items-center gap-1">
@@ -361,10 +378,10 @@ export const Chat = () => {
       </Card>
 
       {/* Chat area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Messages */}
         <Card className="flex-1 auth-container border-border/50 rounded-none">
-          <CardHeader className="border-b border-border/50">
+          <CardHeader className="hidden lg:block border-b border-border/50">
             <div className="flex items-center justify-between">
               <CardTitle>Chat Geral</CardTitle>
               <Badge variant="outline">
@@ -373,11 +390,11 @@ export const Chat = () => {
             </div>
           </CardHeader>
           <CardContent className="flex-1 p-0">
-            <ScrollArea className="h-[calc(100vh-240px)] p-4">
-              <div className="space-y-4">
+            <ScrollArea className="h-[calc(100vh-200px)] lg:h-[calc(100vh-240px)] p-3 lg:p-4">
+              <div className="space-y-3 lg:space-y-4">
                 {Object.entries(groupedMessages).map(([date, dateMessages]) => (
                   <div key={date}>
-                    <div className="flex items-center justify-center my-4">
+                    <div className="flex items-center justify-center my-3 lg:my-4">
                       <Badge variant="outline" className="text-xs">
                         {date}
                       </Badge>
@@ -386,12 +403,12 @@ export const Chat = () => {
                     {dateMessages.map((message, index) => (
                       <div
                         key={message.id || index}
-                        className={`flex gap-3 mb-4 ${
+                        className={`flex gap-2 lg:gap-3 mb-3 lg:mb-4 ${
                           message.userId === user?.id ? 'justify-end' : 'justify-start'
                         }`}
                       >
                         {message.userId !== user?.id && (
-                          <Avatar className="h-8 w-8 mt-1">
+                          <Avatar className="h-6 w-6 lg:h-8 lg:w-8 mt-1 shrink-0">
                             <AvatarFallback className="text-xs">
                               {getInitials(message.userName)}
                             </AvatarFallback>
@@ -399,7 +416,7 @@ export const Chat = () => {
                         )}
                         
                         <div
-                          className={`max-w-[70%] rounded-lg p-3 ${
+                          className={`max-w-[85%] sm:max-w-[75%] lg:max-w-[70%] rounded-lg p-2 lg:p-3 ${
                             message.userId === user?.id
                               ? 'bg-primary text-primary-foreground ml-auto'
                               : 'bg-secondary'
@@ -423,7 +440,7 @@ export const Chat = () => {
                         </div>
                         
                         {message.userId === user?.id && (
-                          <Avatar className="h-8 w-8 mt-1">
+                          <Avatar className="h-6 w-6 lg:h-8 lg:w-8 mt-1 shrink-0">
                             <AvatarFallback className="text-xs">
                               {getInitials(user?.name || '')}
                             </AvatarFallback>
@@ -435,9 +452,9 @@ export const Chat = () => {
                 ))}
                 
                 {messages.length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Send className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-lg font-medium mb-2">Nenhuma mensagem ainda</p>
+                  <div className="text-center py-8 lg:py-12 text-muted-foreground">
+                    <Send className="h-8 w-8 lg:h-12 lg:w-12 mx-auto mb-3 lg:mb-4 opacity-50" />
+                    <p className="text-base lg:text-lg font-medium mb-2">Nenhuma mensagem ainda</p>
                     <p className="text-sm">Seja o primeiro a enviar uma mensagem!</p>
                   </div>
                 )}
@@ -450,7 +467,7 @@ export const Chat = () => {
 
         {/* Message input */}
         <Card className="auth-container border-border/50 rounded-none border-t">
-          <CardContent className="p-4">
+          <CardContent className="p-3 lg:p-4">
             <div className="flex gap-2">
               <Input
                 placeholder={isConnected ? "Digite sua mensagem..." : "Conectando..."}
@@ -458,12 +475,13 @@ export const Chat = () => {
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={!isConnected || isLoading}
-                className="flex-1"
+                className="flex-1 text-base lg:text-sm"
               />
               <Button 
                 onClick={sendMessage}
                 disabled={!newMessage.trim() || !isConnected || isLoading}
                 size="icon"
+                className="shrink-0"
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -472,12 +490,14 @@ export const Chat = () => {
               {isConnected ? (
                 <>
                   <div className="h-2 w-2 bg-primary rounded-full" />
-                  Conectado - mensagens em tempo real
+                  <span className="hidden sm:inline">Conectado - mensagens em tempo real</span>
+                  <span className="sm:hidden">Online</span>
                 </>
               ) : (
                 <>
                   <div className="h-2 w-2 bg-destructive rounded-full" />
-                  Desconectado - tentando reconectar...
+                  <span className="hidden sm:inline">Desconectado - tentando reconectar...</span>
+                  <span className="sm:hidden">Reconectando...</span>
                 </>
               )}
             </p>
