@@ -65,10 +65,15 @@ export const Chat = () => {
   const connectWebSocket = () => {
     try {
       console.log('🔌 Conectando ao WebSocket...');
-      wsRef.current = new WebSocket('ws://skillzeer-realtime.hf.space:7860');
+      
+      // Try different WebSocket URLs - the API docs show ws://skillzeer-realtime.hf.space:7860
+      const wsUrl = 'wss://skillzeer-realtime.hf.space';
+      console.log('🌐 URL WebSocket:', wsUrl);
+      
+      wsRef.current = new WebSocket(wsUrl);
       
       wsRef.current.onopen = () => {
-        console.log('✅ WebSocket conectado');
+        console.log('✅ WebSocket conectado com sucesso');
         setIsConnected(true);
         toast({
           title: "Chat conectado",
@@ -100,25 +105,54 @@ export const Chat = () => {
         }
       };
 
-      wsRef.current.onclose = () => {
+      wsRef.current.onclose = (event) => {
         console.log('❌ WebSocket desconectado');
+        console.log('🔍 Código de fechamento:', event.code);
+        console.log('🔍 Razão:', event.reason);
+        console.log('🔍 Foi limpo:', event.wasClean);
+        
         setIsConnected(false);
         toast({
           title: "Chat desconectado",
-          description: "Tentando reconectar...",
+          description: `Código: ${event.code} - ${event.reason || 'Tentando reconectar...'}`,
           variant: "destructive",
         });
         
         // Attempt to reconnect after 3 seconds
-        setTimeout(connectWebSocket, 3000);
+        setTimeout(() => {
+          console.log('🔄 Tentando reconectar WebSocket...');
+          connectWebSocket();
+        }, 3000);
       };
 
       wsRef.current.onerror = (error) => {
-        console.error('❌ Erro no WebSocket:', error);
+        console.error('❌ Erro detalhado no WebSocket:', error);
+        console.error('❌ Tipo do erro:', error.type);
+        console.error('❌ Target:', error.target);
+        console.error('❌ WebSocket readyState:', wsRef.current?.readyState);
+        
         setIsConnected(false);
+        
+        const readyStateText = {
+          0: 'CONNECTING',
+          1: 'OPEN', 
+          2: 'CLOSING',
+          3: 'CLOSED'
+        }[wsRef.current?.readyState || 3];
+        
+        toast({
+          title: "Erro de conexão WebSocket",
+          description: `Estado: ${readyStateText} - Verifique a conexão`,
+          variant: "destructive",
+        });
       };
     } catch (error) {
-      console.error('❌ Erro ao conectar WebSocket:', error);
+      console.error('❌ Erro ao criar WebSocket:', error);
+      toast({
+        title: "Erro ao inicializar WebSocket",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
+        variant: "destructive",
+      });
     }
   };
 
