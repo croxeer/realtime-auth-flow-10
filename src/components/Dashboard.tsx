@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, Users, Database, Wifi, WifiOff } from 'lucide-react';
+import { LogOut, Users, Database, Wifi, WifiOff, MessageCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { Chat } from './Chat';
 
 export const Dashboard = () => {
   const { user, logout } = useAuth();
@@ -96,13 +98,13 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-bg p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-bg">
+      <div className="h-screen flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between p-4 border-b border-border/50 bg-card/50">
           <div>
-            <h1 className="text-3xl font-bold gradient-text">Dashboard</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl font-bold gradient-text">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">
               Bem-vindo, {user?.name}!
             </p>
           </div>
@@ -111,12 +113,33 @@ export const Dashboard = () => {
               {wsConnected ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
               {wsConnected ? 'Online' : 'Offline'}
             </Badge>
-            <Button onClick={handleLogout} variant="outline">
+            <Button onClick={handleLogout} variant="outline" size="sm">
               <LogOut className="mr-2 h-4 w-4" />
               Sair
             </Button>
           </div>
         </div>
+
+        {/* Main Content */}
+        <div className="flex-1">
+          <Tabs defaultValue="chat" className="h-full">
+            <TabsList className="grid w-full grid-cols-2 rounded-none">
+              <TabsTrigger value="chat" className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                Chat
+              </TabsTrigger>
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                Visão Geral
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="chat" className="h-[calc(100vh-120px)] m-0">
+              <Chat />
+            </TabsContent>
+            
+            <TabsContent value="overview" className="h-[calc(100vh-120px)] m-0 p-4 overflow-auto">
+              <div className="max-w-6xl mx-auto space-y-6">
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -224,7 +247,11 @@ export const Dashboard = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
+              </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
