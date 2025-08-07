@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy all source files
 COPY . .
@@ -16,8 +16,8 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Expose port 7860 (Hugging Face Spaces default)
-EXPOSE 7860
+# Expose port 8080 (Hugging Face Spaces default)
+EXPOSE 8080
 
 # Start the application
 CMD ["npm", "run", "preview"]
