@@ -46,6 +46,14 @@ export const Chat = () => {
   }, [messages]);
 
   useEffect(() => {
+    // Garantir que o usuário está disponível antes de conectar
+    if (!user) {
+      console.log('⏳ Aguardando usuário para conectar chat...');
+      return;
+    }
+
+    console.log('🚀 Inicializando chat para usuário:', user.name);
+    
     // Connect to WebSocket
     connectWebSocket();
     
@@ -57,16 +65,21 @@ export const Chat = () => {
 
     return () => {
       if (wsRef.current) {
-        wsRef.current.close();
+        wsRef.current.close(1000);
       }
     };
-  }, []);
+  }, [user]);
 
   const connectWebSocket = () => {
+    // Verificar se o usuário está disponível
+    if (!user) {
+      console.log('❌ Usuário não disponível para conectar WebSocket');
+      return;
+    }
+
     try {
-      console.log('🔌 Conectando ao WebSocket...');
+      console.log('🔌 Conectando ao WebSocket para usuário:', user.name);
       
-      // Try different WebSocket URLs - the API docs show ws://skillzeer-realtime.hf.space:7860
       const wsUrl = 'wss://skillzeer-realtime.hf.space';
       console.log('🌐 URL WebSocket:', wsUrl);
       

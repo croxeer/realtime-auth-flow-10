@@ -16,47 +16,58 @@ export const Dashboard = () => {
 
   useEffect(() => {
     // Connect to WebSocket for real-time updates
-    const ws = new WebSocket('ws://skillzeer-realtime.hf.space:7860');
+    let ws: WebSocket | null = null;
     
-    ws.onopen = () => {
-      setWsConnected(true);
-      toast({
-        title: "WebSocket conectado",
-        description: "Recebendo atualizações em tempo real",
-      });
-    };
-
-    ws.onmessage = (event) => {
+    const connectWebSocket = () => {
       try {
-        const update = JSON.parse(event.data);
-        setRealtimeUpdates(prev => [update, ...prev.slice(0, 9)]);
-        toast({
-          title: "Atualização em tempo real",
-          description: `${update.type}: ${update.collection}`,
-        });
+        console.log('🔌 Conectando Dashboard WebSocket...');
+        ws = new WebSocket('wss://skillzeer-realtime.hf.space');
+        
+        ws.onopen = () => {
+          console.log('✅ Dashboard WebSocket conectado');
+          setWsConnected(true);
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const update = JSON.parse(event.data);
+            console.log('📨 Dashboard update:', update);
+            setRealtimeUpdates(prev => [update, ...prev.slice(0, 9)]);
+          } catch (error) {
+            console.error('❌ Erro ao processar update Dashboard:', error);
+          }
+        };
+
+        ws.onclose = (event) => {
+          console.log('❌ Dashboard WebSocket desconectado:', event.code);
+          setWsConnected(false);
+          
+          // Reconectar após 5 segundos se não foi fechamento intencional
+          if (event.code !== 1000) {
+            setTimeout(connectWebSocket, 5000);
+          }
+        };
+
+        ws.onerror = (error) => {
+          console.error('❌ Dashboard WebSocket erro:', error);
+          setWsConnected(false);
+        };
       } catch (error) {
-        console.error('Error parsing WebSocket message:', error);
+        console.error('❌ Erro ao criar Dashboard WebSocket:', error);
+        setWsConnected(false);
       }
     };
 
-    ws.onclose = () => {
-      setWsConnected(false);
-      toast({
-        title: "WebSocket desconectado",
-        description: "Conexão em tempo real perdida",
-        variant: "destructive",
-      });
-    };
-
-    ws.onerror = () => {
-      setWsConnected(false);
-    };
-
+    // Conectar WebSocket
+    connectWebSocket();
+    
     // Fetch initial stats
     fetchStats();
 
     return () => {
-      ws.close();
+      if (ws) {
+        ws.close(1000);
+      }
     };
   }, []);
 
@@ -257,5 +268,4 @@ export const Dashboard = () => {
   );
 };
 
-// Add missing import for Label
 import { Label } from '@/components/ui/label';
