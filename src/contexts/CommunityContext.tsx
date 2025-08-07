@@ -35,6 +35,12 @@ export const CommunityProvider = ({ children }: { children: React.ReactNode }) =
           if (collection === 'profiles') {
             queryClient.invalidateQueries({ queryKey: ['profiles'] });
           }
+          if (collection === 'friendships') {
+            queryClient.invalidateQueries({ queryKey: ['friendships'] });
+          }
+          if (collection === 'direct_messages') {
+            queryClient.invalidateQueries({ queryKey: ['direct_messages'] });
+          }
         } catch {}
       };
       wsRef.current.onclose = () => {

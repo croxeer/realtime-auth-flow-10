@@ -1,6 +1,6 @@
 export const API_BASE = 'https://skillzeer-realtime.hf.space';
 
-export type ApiCollectionName = 'users' | 'groups' | 'posts' | 'comments' | 'profiles' | 'memberships' | 'likes';
+export type ApiCollectionName = 'users' | 'groups' | 'posts' | 'comments' | 'profiles' | 'memberships' | 'likes' | 'friendships' | 'direct_messages';
 
 export interface ApiListResponse<T> {
   collection?: string;
@@ -75,6 +75,25 @@ export async function apiDelete(collection: ApiCollectionName, id: string): Prom
   }
 }
 
+export async function apiListUsers(): Promise<any[]> {
+  try {
+    const res = await fetch(`${API_BASE}/api/users`);
+    if (!res.ok) return [];
+    const json = await res.json();
+    return Array.isArray(json) ? json : (json.data ?? []);
+  } catch {
+    return [];
+  }
+}
+
+export async function apiUpdatePost(id: string, body: Record<string, any>) {
+  return apiUpdate('posts', id, body);
+}
+
+export async function apiUpdateGroup(id: string, body: Record<string, any>) {
+  return apiUpdate('groups', id, body);
+}
+
 export interface CommunityGroup {
   id: string;
   name: string;
@@ -124,6 +143,23 @@ export interface PostLike {
   id: string;
   postId: string;
   userId: string;
+  createdAt?: string;
+}
+
+export interface Friendship {
+  id: string;
+  requesterId: string;
+  addresseeId: string;
+  status: 'pending' | 'accepted' | 'blocked';
+  createdAt?: string;
+}
+
+export interface DirectMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  recipientId: string;
+  content: string;
   createdAt?: string;
 }
 
@@ -179,4 +215,13 @@ export const CommunityAPI = {
   async deleteUser(id: string) {
     return apiDelete('users', id);
   },
+  async listUsers() { return apiListUsers(); },
+  async editGroup(id: string, body: Record<string, any>) { return apiUpdateGroup(id, body); },
+  async updatePost(id: string, body: Record<string, any>) { return apiUpdatePost(id, body); },
+  async listFriendships() { return apiGet<Friendship>('friendships'); },
+  async sendFriendRequest(requesterId: string, addresseeId: string) { return apiCreate<Friendship>('friendships', { requesterId, addresseeId, status: 'pending' }); },
+  async acceptFriendRequest(id: string) { return apiUpdate<Friendship>('friendships', id, { status: 'accepted' }); },
+  async cancelFriendship(id: string) { return apiDelete('friendships', id); },
+  async listDirectMessages() { return apiGet<DirectMessage>('direct_messages'); },
+  async sendDirectMessage(senderId: string, senderName: string, recipientId: string, content: string) { return apiCreate<DirectMessage>('direct_messages', { senderId, senderName, recipientId, content }); },
 };

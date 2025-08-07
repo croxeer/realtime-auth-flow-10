@@ -13,6 +13,8 @@ import Profile from "./pages/Profile";
 import { CommunityProvider } from "@/contexts/CommunityContext";
 import AdminPanel from "./pages/AdminPanel";
 import { useIsAdmin } from "@/hooks/use-authz";
+import Messages from "./pages/Messages";
+import Conversation from "./pages/Conversation";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +46,8 @@ const App = () => (
               <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
               <Route path="/groups" element={<RequireAuth><Groups /></RequireAuth>} />
               <Route path="/groups/:id" element={<RequireAuth><GroupDetail /></RequireAuth>} />
+              <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
+              <Route path="/messages/:id" element={<RequireAuth><Conversation /></RequireAuth>} />
               <Route path="/profile/:id" element={<RequireAuth><Profile /></RequireAuth>} />
               <Route path="/admin" element={<RequireAuth><RequireAdmin><AdminPanel /></RequireAdmin></RequireAuth>} />
               <Route path="*" element={<NotFound />} />

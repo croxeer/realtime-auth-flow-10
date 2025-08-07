@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Users, User, Shield } from 'lucide-react';
+import { Home, Users, User, Shield, MessageCircle } from 'lucide-react';
 import { useIsAdmin } from '@/hooks/use-authz';
 
 export const MobileLayout = ({ title, children }: { title: string; children: React.ReactNode }) => {
@@ -16,7 +16,7 @@ export const MobileLayout = ({ title, children }: { title: string; children: Rea
       <div className="flex-1 min-h-0">{children}</div>
 
       <nav className="sticky bottom-0 z-20 border-t border-border/50 bg-card/70 backdrop-blur">
-        <div className={`grid ${isAdmin ? 'grid-cols-4' : 'grid-cols-3'} h-14`}>
+        <div className={`grid ${isAdmin ? 'grid-cols-5' : 'grid-cols-4'} h-14`}>
           <NavLink
             to="/feed"
             className={({ isActive }) => `flex flex-col items-center justify-center text-xs ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
@@ -30,6 +30,13 @@ export const MobileLayout = ({ title, children }: { title: string; children: Rea
           >
             <Users className="h-5 w-5" />
             <span>Grupos</span>
+          </NavLink>
+          <NavLink
+            to="/messages"
+            className={({ isActive }) => `flex flex-col items-center justify-center text-xs ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+          >
+            <MessageCircle className="h-5 w-5" />
+            <span>Mensagens</span>
           </NavLink>
           <NavLink
             to="/profile/me"

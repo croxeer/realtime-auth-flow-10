@@ -20,7 +20,7 @@ const ListRow = ({ title, subtitle, onDelete }: { title: string; subtitle?: stri
 
 const AdminPanel = () => {
   const queryClient = useQueryClient();
-  const { data: users = [] } = useQuery({ queryKey: ['users'], queryFn: () => CommunityAPI.apiGet?.('users') as any });
+  const { data: users = [] } = useQuery({ queryKey: ['users'], queryFn: () => CommunityAPI.listUsers() });
   const { data: groups = [] } = useQuery({ queryKey: ['groups'], queryFn: () => CommunityAPI.listGroups() });
   const { data: posts = [] } = useQuery({ queryKey: ['posts'], queryFn: () => CommunityAPI.listPosts() });
 
