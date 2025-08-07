@@ -11,6 +11,8 @@ import Groups from "./pages/Groups";
 import GroupDetail from "./pages/GroupDetail";
 import Profile from "./pages/Profile";
 import { CommunityProvider } from "@/contexts/CommunityContext";
+import AdminPanel from "./pages/AdminPanel";
+import { useIsAdmin } from "@/hooks/use-authz";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +20,14 @@ const RequireAuth = ({ children }: { children: JSX.Element }) => {
   const { user, isLoading } = useAuth();
   if (isLoading) return <div className="p-4 text-sm text-muted-foreground">Carregando...</div>;
   if (!user) return <Navigate to="/" replace />;
+  return children;
+};
+
+const RequireAdmin = ({ children }: { children: JSX.Element }) => {
+  const isAdmin = useIsAdmin();
+  const { isLoading } = useAuth();
+  if (isLoading) return <div className="p-4 text-sm text-muted-foreground">Carregando...</div>;
+  if (!isAdmin) return <Navigate to="/feed" replace />;
   return children;
 };
 
@@ -35,6 +45,7 @@ const App = () => (
               <Route path="/groups" element={<RequireAuth><Groups /></RequireAuth>} />
               <Route path="/groups/:id" element={<RequireAuth><GroupDetail /></RequireAuth>} />
               <Route path="/profile/:id" element={<RequireAuth><Profile /></RequireAuth>} />
+              <Route path="/admin" element={<RequireAuth><RequireAdmin><AdminPanel /></RequireAdmin></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

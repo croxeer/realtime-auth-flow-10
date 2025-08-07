@@ -1,6 +1,6 @@
 export const API_BASE = 'https://skillzeer-realtime.hf.space';
 
-export type ApiCollectionName = 'users' | 'groups' | 'posts' | 'comments' | 'profiles' | 'memberships';
+export type ApiCollectionName = 'users' | 'groups' | 'posts' | 'comments' | 'profiles' | 'memberships' | 'likes';
 
 export interface ApiListResponse<T> {
   collection?: string;
@@ -66,6 +66,15 @@ export async function apiUpdate<T>(collection: ApiCollectionName, id: string, bo
   return created;
 }
 
+export async function apiDelete(collection: ApiCollectionName, id: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/api/${collection}/${id}`, { method: 'DELETE' });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export interface CommunityGroup {
   id: string;
   name: string;
@@ -104,6 +113,20 @@ export interface UserProfile {
   createdAt?: string;
 }
 
+export interface GroupMembership {
+  id: string;
+  groupId: string;
+  userId: string;
+  createdAt?: string;
+}
+
+export interface PostLike {
+  id: string;
+  postId: string;
+  userId: string;
+  createdAt?: string;
+}
+
 export const CommunityAPI = {
   async listGroups() {
     return apiGet<CommunityGroup>('groups');
@@ -128,5 +151,32 @@ export const CommunityAPI = {
   },
   async upsertProfile(userId: string, input: Omit<UserProfile, 'id'>) {
     return apiUpdate<UserProfile>('profiles', userId, { id: userId, ...input });
-  }
+  },
+  async listMemberships() {
+    return apiGet<GroupMembership>('memberships');
+  },
+  async joinGroup(groupId: string, userId: string) {
+    return apiCreate<GroupMembership>('memberships', { groupId, userId });
+  },
+  async leaveGroup(membershipId: string) {
+    return apiDelete('memberships', membershipId);
+  },
+  async listLikes() {
+    return apiGet<PostLike>('likes');
+  },
+  async likePost(postId: string, userId: string) {
+    return apiCreate<PostLike>('likes', { postId, userId });
+  },
+  async unlikePost(likeId: string) {
+    return apiDelete('likes', likeId);
+  },
+  async deletePost(id: string) {
+    return apiDelete('posts', id);
+  },
+  async deleteGroup(id: string) {
+    return apiDelete('groups', id);
+  },
+  async deleteUser(id: string) {
+    return apiDelete('users', id);
+  },
 };
