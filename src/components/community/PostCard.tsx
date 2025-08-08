@@ -24,7 +24,7 @@ export const PostCard = ({ post, onOpenComments }: { post: CommunityPost; onOpen
   };
 
   return (
-    <Card className="border-border/50">
+    <Card className="border-border/50 shadow-sm">
       <CardContent className="p-4 space-y-2">
         <div className="text-sm text-muted-foreground">{time}</div>
         <div className="text-sm font-medium">{post.userName}</div>
